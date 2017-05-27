@@ -18,7 +18,7 @@ typedef bison::Parser::token token;
 
 blank   [ \t]
 symbol  [a-zA-Z_][0-9a-zA-Z_]*
-numeric [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*
+numeric [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*([eE][+-]?[0-9]+)?
 
 %%
 

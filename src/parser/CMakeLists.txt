@@ -15,8 +15,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(parser
   lexer.cpp
+  tree.cpp
   ${BISON_parser_OUTPUTS}
   ${FLEX_lexer_OUTPUTS})
+
+target_link_libraries(parser ast)
 
 # Generated code has some harmless warning
 set_source_files_properties(gen_lexer.cpp PROPERTIES COMPILE_FLAGS "-Wno-address")

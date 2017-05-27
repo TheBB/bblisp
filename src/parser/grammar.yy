@@ -2,6 +2,8 @@
 
 %code requires{
 #include <iostream>
+#include "ast/ast.hpp"
+#include "tree.hpp"
 class Lexer;
 }
 
@@ -10,54 +12,34 @@ class Lexer;
 %define api.namespace {bison}
 
 %param { Lexer &lexer }
+%parse-param { SourceTree &tree }
 
 %code{
 static int yylex(bison::Parser::semantic_type *yylval, Lexer &lexer);
 }
 
 %union {
-    int ival;
     float fval;
-    char *sval;
+    ASTNode *node;
 }
 
-%token SNAZZLE
-%token TYPE
-%token END
+%destructor {
+    if ($$) { delete ($$); ($$) = nullptr; }
+} <node>
 
-%token  <ival>          INT
+%token                  END 0
 %token  <fval>          FLOAT
-%token  <sval>          STRING
+
+%type   <node>          number_literal
 
 %%
 
-snazzle:        header template body_section footer { std::cout << "done with snazzle" << std::endl; }
+%start top;
+
+top:            number_literal END { tree.set_root($1); }
         ;
 
-header:         SNAZZLE FLOAT { std::cout << "snazzle file version " << $2 << std::endl; }
-        ;
-
-template:       type_lines
-        ;
-
-type_lines:     type_lines type_line
-        |       type_line
-        ;
-
-type_line:      TYPE STRING { std::cout << "new snazzle type: " << $2 << std::endl; }
-        ;
-
-body_section:   body_lines
-        ;
-
-body_lines:     body_lines body_line
-        |       body_line
-        ;
-
-body_line:      INT INT INT INT STRING { std::cout << "new snazzle: " << $1 << " " << $2 << " " << $3 << " " << $4 << " " << $5 << std::endl; }
-        ;
-
-footer:         END
+number_literal: FLOAT { $$ = new NumberNode($1); }
         ;
 
 %%

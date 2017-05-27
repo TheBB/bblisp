@@ -5,6 +5,8 @@
 #include "gen_parser.hpp"
 
 typedef bison::Parser::token token;
+
+#define yyterminate() return token::END
 %}
 
 %option debug
@@ -14,27 +16,14 @@ typedef bison::Parser::token token;
 %option outfile="gen_lexer.cpp"
 %option nounistd
 
+blank   [ \t]
+numeric [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*
+
 %%
 
-[ \t\n] ;
-sNaZZle {
-    return token::SNAZZLE;
-}
-type {
-    return token::TYPE;
-}
-end {
-    return token::END;
-}
-[0-9]+\.[0-9]+ {
+{blank}+ ;
+
+{numeric} {
     yylval->fval = atof(yytext);
     return token::FLOAT;
-}
-[0-9]+ {
-    yylval->ival = atoi(yytext);
-    return token::INT;
-}
-[a-zA-Z0-9]+ {
-    yylval->sval = strdup(yytext);
-    return token::STRING;
 }

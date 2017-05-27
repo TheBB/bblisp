@@ -2,20 +2,17 @@
 #include <sstream>
 #include <string>
 
-#include "parser/lexer.hpp"
-#include "parser/gen_parser.hpp"
+#include "parser/tree.hpp"
 
 
 int main(int argc, char **argv) {
     std::string input;
     std::cerr << "ready> ";
-    while (std::getline(std::cin, input, ';')) {
+    while (std::getline(std::cin, input, '\n')) {
         std::istringstream iss(input);
 
-        Lexer lexer(&iss);
-        bison::Parser parser(lexer);
-        parser.parse();
-        // lexer.yylex();
+        SourceTree tree;
+        tree.parse(iss);
         std::cerr << "ready> ";
     }
 

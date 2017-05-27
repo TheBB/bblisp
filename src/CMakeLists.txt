@@ -1,5 +1,6 @@
 file(GLOB KALEIDOSCOPE_SRCS *.cpp)
 
+add_subdirectory(ast)
 add_subdirectory(parser)
 
 add_executable(kaleidoscope ${KALEIDOSCOPE_SRCS})

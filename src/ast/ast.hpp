@@ -19,4 +19,13 @@ public:
 };
 
 
+class SymbolNode: public ASTNode {
+    std::string name;
+
+public:
+    SymbolNode(const std::string &name);
+    void write(std::ostream&);
+};
+
+
 std::ostream& operator<<(std::ostream& out, ASTNode& node);

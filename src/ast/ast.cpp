@@ -20,3 +20,11 @@ NumberNode::NumberNode(double value) : value(value) {}
 void NumberNode::write(std::ostream& out) {
     out << "<number " << value << ">";
 }
+
+
+SymbolNode::SymbolNode(const std::string &name) : name(name) {}
+
+
+void SymbolNode::write(std::ostream& out) {
+    out << "<symbol '" << name << "'>";
+}

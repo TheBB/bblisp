@@ -19,27 +19,36 @@ static int yylex(bison::Parser::semantic_type *yylval, Lexer &lexer);
 }
 
 %union {
-    float fval;
+    double fval;
+    std::string *str;
     ASTNode *node;
 }
 
 %destructor {
     if ($$) { delete ($$); ($$) = nullptr; }
-} <node>
+} <str> <node>
 
 %token                  END 0
 %token  <fval>          FLOAT
+%token  <str>           SYMBOL
 
-%type   <node>          number_literal
+%type   <node>          expr lit_number symbol
 
 %%
 
 %start top;
 
-top:            number_literal END { tree.set_root($1); }
+top:            expr END { tree.set_root($1); }
         ;
 
-number_literal: FLOAT { $$ = new NumberNode($1); }
+expr:           lit_number
+        |       symbol
+        ;
+
+lit_number:     FLOAT { $$ = new NumberNode($1); }
+        ;
+
+symbol:         SYMBOL { $$ = new SymbolNode(*$1); }
         ;
 
 %%

@@ -25,7 +25,7 @@ numeric [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*([eE][+-]?[0-9]+)?
 {blank}+ ;
 
 {numeric} {
-    yylval->fval = atof(yytext);
+    yylval->fval = strtod(yytext, nullptr);
     return token::FLOAT;
 }
 

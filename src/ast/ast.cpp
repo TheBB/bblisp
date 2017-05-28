@@ -28,3 +28,12 @@ SymbolNode::SymbolNode(const std::string &name) : name(name) {}
 void SymbolNode::write(std::ostream& out) {
     out << "<symbol '" << name << "'>";
 }
+
+
+StringNode::StringNode(const std::string& value, char delimiter)
+    : value(value), delimiter(delimiter) {}
+
+
+void StringNode::write(std::ostream& out) {
+    out << "<string " << delimiter << value << delimiter << ">";
+}

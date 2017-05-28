@@ -16,9 +16,11 @@ typedef bison::Parser::token token;
 %option outfile="gen_lexer.cpp"
 %option nounistd
 
-blank   [ \t]
-symbol  [a-zA-Z_][0-9a-zA-Z_]*
-numeric [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*([eE][+-]?[0-9]+)?
+blank    [ \t]
+symbol   [a-zA-Z_][0-9a-zA-Z_]*
+numeric  [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*([eE][+-]?[0-9]+)?
+dqstring \"(\\.|[^\\"])*\"
+sqstring \'(\\.|[^\\'])*\'
 
 %%
 
@@ -32,4 +34,16 @@ numeric [0-9]*([0-9]\.|\.[0-9]|[0-9])[0-9]*([eE][+-]?[0-9]+)?
 {symbol} {
     yylval->str = new std::string(yytext);
     return token::SYMBOL;
+}
+
+{dqstring} {
+    yytext[strlen(yytext)-1] = 0;
+    yylval->str = new std::string(&yytext[1]);
+    return token::DQ_STRING;
+}
+
+{sqstring} {
+    yytext[strlen(yytext)-1] = 0;
+    yylval->str = new std::string(&yytext[1]);
+    return token::SQ_STRING;
 }

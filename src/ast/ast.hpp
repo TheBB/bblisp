@@ -10,6 +10,9 @@ public:
 };
 
 
+std::ostream& operator<<(std::ostream& out, ASTNode& node);
+
+
 class NumberNode: public ASTNode {
     double value;
 
@@ -28,4 +31,11 @@ public:
 };
 
 
-std::ostream& operator<<(std::ostream& out, ASTNode& node);
+class StringNode: public ASTNode {
+    std::string value;
+    char delimiter;
+
+public:
+    StringNode(const std::string &value, char delimiter);
+    void write(std::ostream&);
+};

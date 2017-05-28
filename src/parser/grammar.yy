@@ -30,9 +30,9 @@ static int yylex(bison::Parser::semantic_type *yylval, Lexer &lexer);
 
 %token                  END 0
 %token  <fval>          FLOAT
-%token  <str>           SYMBOL
+%token  <str>           SYMBOL DQ_STRING SQ_STRING
 
-%type   <node>          expr lit_number symbol
+%type   <node>          expr lit_number lit_dq_string lit_sq_string symbol
 
 %%
 
@@ -42,11 +42,19 @@ top:            expr END { tree.set_root($1); }
         ;
 
 expr:           lit_number
+        |       lit_dq_string
+        |       lit_sq_string
         |       symbol
         ;
 
 lit_number:     FLOAT { $$ = new NumberNode($1); }
         ;
+
+lit_dq_string:  DQ_STRING { $$ = new StringNode(*$1, '"'); }
+                ;
+
+lit_sq_string:  SQ_STRING { $$ = new StringNode(*$1, '\''); }
+                ;
 
 symbol:         SYMBOL { $$ = new SymbolNode(*$1); }
         ;

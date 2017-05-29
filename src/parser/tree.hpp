@@ -5,7 +5,8 @@
 #include "ast/ast.hpp"
 
 
-class SourceTree {
+class SourceTree
+{
 public:
     SourceTree() { };
     void set_root(ASTNode *node);

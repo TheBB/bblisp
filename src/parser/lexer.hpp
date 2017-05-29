@@ -8,7 +8,8 @@
 
 #include "gen_parser.hpp"
 
-class Lexer: public yyFlexLexer {
+class Lexer: public yyFlexLexer
+{
     int yylex();
     bison::Parser::semantic_type *yylval;
 

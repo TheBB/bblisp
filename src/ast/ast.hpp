@@ -3,12 +3,17 @@
 #include <iostream>
 #include <vector>
 
+#include "llvm/IR/Value.h"
+
+#include "codegen.hpp"
+
 
 class ASTNode
 {
 public:
     virtual ~ASTNode() {};
     virtual void write(std::ostream&);
+    virtual llvm::Value *codegen(CodeGen&) = 0;
 };
 
 
@@ -22,6 +27,7 @@ class NumberNode: public ASTNode
 public:
     NumberNode(double value);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
@@ -32,6 +38,10 @@ class SymbolNode: public ASTNode
 public:
     SymbolNode(const std::string& name);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
+    std::string str();
+    llvm::Twine twine();
+    llvm::StringRef stringref();
 };
 
 
@@ -43,6 +53,7 @@ class StringNode: public ASTNode
 public:
     StringNode(const std::string& value, char delimiter);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
@@ -66,6 +77,7 @@ private:
 public:
     BinaryNode(Operator op, ASTNode *lhs, ASTNode *rhs);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
@@ -83,6 +95,20 @@ private:
 public:
     UnaryNode(Operator op, ASTNode *operand);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
+};
+
+
+class CallNode: public ASTNode
+{
+private:
+    SymbolNode *name;
+    std::vector<ASTNode*> arguments;
+
+public:
+    CallNode(SymbolNode *name, std::vector<ASTNode*> &arguments);
+    void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
@@ -93,6 +119,7 @@ class BranchNode: public ASTNode
 public:
     BranchNode(ASTNode *condition, ASTNode *true_br, ASTNode *false_br);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
@@ -104,6 +131,7 @@ class LoopNode: public ASTNode
 public:
     LoopNode(SymbolNode*, ASTNode*, ASTNode*, ASTNode*, ASTNode*);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
@@ -118,17 +146,20 @@ class LetNode: public ASTNode
 public:
     LetNode(const bindings_t& bindings, ASTNode *body);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };
 
 
 class PrototypeNode: public ASTNode
 {
     SymbolNode *name;
+    std::string temp_name;
     std::vector<SymbolNode*> arguments;
 
 public:
     PrototypeNode(SymbolNode *name, const std::vector<SymbolNode*> &arguments);
     void write(std::ostream&);
+    llvm::Function *codegen(CodeGen&);
 };
 
 
@@ -140,4 +171,5 @@ class FunctionNode: public ASTNode
 public:
     FunctionNode(PrototypeNode *prototype, ASTNode *body);
     void write(std::ostream&);
+    llvm::Value *codegen(CodeGen&);
 };

@@ -27,6 +27,7 @@ static int yylex(bison::Parser::semantic_type *yylval, Lexer &lexer);
     FunctionNode *func_node;
     SymbolNode *sym_node;
     std::vector<SymbolNode*> *syms;
+    std::vector<ASTNode*> *nodes;
     binding_t *binding;
     bindings_t *bindings;
 }
@@ -44,7 +45,8 @@ static int yylex(bison::Parser::semantic_type *yylval, Lexer &lexer);
 %token  <fval>          FLOAT
 %token  <str>           SYMBOL DQ_STRING SQ_STRING
 
-%type   <node>          expr operator branch loop let lit_number lit_dq_string lit_sq_string
+%type   <node>          expr call operator branch loop let lit_number lit_dq_string lit_sq_string
+%type   <nodes>         arg_list
 %type   <proto_node>    prototype external
 %type   <func_node>     function
 %type   <sym_node>      symbol
@@ -56,9 +58,15 @@ static int yylex(bison::Parser::semantic_type *yylval, Lexer &lexer);
 
 %start top;
 
-top:            function END { tree.set_root($1); }
-        |       external END { tree.set_root($1); }
-        |       expr END { tree.set_root($1); }
+top:            function END { tree.add_node($1); }
+        |       external END { tree.add_node($1); }
+        |       expr END {
+                  PrototypeNode *proto = new PrototypeNode(
+                    nullptr,
+                    std::vector<SymbolNode*>()
+                  );
+                  tree.add_node(new FunctionNode(proto, $1));
+                }
         ;
 
 function:       DEF prototype expr { $$ = new FunctionNode($2, $3); }
@@ -76,6 +84,7 @@ arguments:      { $$ = new std::vector<SymbolNode*>(); }
         ;
 
 expr:           operator
+        |       call
         |       branch
         |       loop
         |       let
@@ -100,6 +109,14 @@ operator:       MINUS expr %prec NEGATE { $$ = new UnaryNode(UnaryNode::Operator
         |       expr LT expr { $$ = new BinaryNode(BinaryNode::Operator::lt, $1, $3); }
         |       expr MULTIPLY expr { $$ = new BinaryNode(BinaryNode::Operator::multiply, $1, $3); }
         |       expr DIVIDE expr { $$ = new BinaryNode(BinaryNode::Operator::divide, $1, $3); }
+        ;
+
+call:           symbol OPEN_PAREN arg_list CLOSE_PAREN { $$ = new CallNode($1, *$3); }
+        ;
+
+arg_list:       { $$ = new std::vector<ASTNode*>(); }
+        |       arg_list "," expr { $$ = $1; $1->push_back($3); }
+        |       expr { $$ = new std::vector<ASTNode*>(); $$->push_back($1); }
         ;
 
 lit_number:     FLOAT { $$ = new NumberNode($1); }
